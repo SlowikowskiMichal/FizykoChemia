@@ -1,4 +1,5 @@
 from bisect import bisect
+import numpy as np
 
 filename = "dane.txt"
 dataFolderPath = "resources/"
