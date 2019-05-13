@@ -1,9 +1,6 @@
 from bisect import bisect
 import numpy as np
 
-filename = "dane.txt"
-dataFolderPath = "resources/"
-
 def insert(list, n, index):
 	list.insert(index, n)
 	return list
@@ -42,22 +39,21 @@ def check_temp(temperature_array, changes_num):
 
 temperature_array = []
 specific_heat_array = []
-path = dataFolderPath + filename
 
-file = open(path, 'r').read()
-lines = file.split('\n')
+def load(filePath = "resources/dane.txt"):
+    file = open(filePath, 'r').read()
+    lines = file.split('\n')
+    listToReturn = [[],[]]
+    for line in lines:
+    	data = line.split()
+    	listToReturn[0].append(float(data[0]))
+    	listToReturn[1].append(float(data[1]))
+    return listToReturn
 
-for line in lines:
-	data = line.split()
-	temperature_array.append(float(data[0]))
-	specific_heat_array.append(float(data[1]))
 
 #index = bisect(temperature_array, 125.0)
 
-changes_num = int(input("Ile przemian chcesz dodac?: "))
-
-temperature_array = check_temp(temperature_array, changes_num)
-
-
-
-print(temperature_array)
+if(__name__ == "__main__"):
+    changes_num = int(input("Ile przemian chcesz dodac?: "))
+    temperature_array = check_temp(temperature_array, changes_num)
+    print(temperature_array)

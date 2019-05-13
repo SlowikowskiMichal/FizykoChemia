@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>17d0ff35-07df-4021-bfaa-ff38780dfe8e</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>FizykoChemia.py</StartupFile>
+    <StartupFile>calculate.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,7 +21,10 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="FizykoChemia.py" />
+    <Compile Include="calculate.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="loadData.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="resources\" />
