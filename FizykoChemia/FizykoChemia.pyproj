@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>17d0ff35-07df-4021-bfaa-ff38780dfe8e</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>calculate.py</StartupFile>
+    <StartupFile>simpleGUI.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -25,7 +25,13 @@
     <Compile Include="calculate.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="gui.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="loadData.py" />
+    <Compile Include="simpleGUI.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="resources\" />
@@ -33,6 +39,7 @@
   <ItemGroup>
     <Content Include="requirements.txt" />
     <Content Include="resources\dane.txt" />
+    <Content Include="resources\test.ui" />
   </ItemGroup>
   <ItemGroup>
     <Interpreter Include="env\">
