@@ -4,14 +4,14 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>17d0ff35-07df-4021-bfaa-ff38780dfe8e</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>calculate.py</StartupFile>
+    <StartupFile>simpleGUI.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>FizykoChemia</Name>
     <RootNamespace>FizykoChemia</RootNamespace>
-    <InterpreterId>MSBuild|env|$(MSBuildProjectFullPath)</InterpreterId>
+    <InterpreterId>MSBuild|venv|$(MSBuildProjectFullPath)</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -25,7 +25,16 @@
     <Compile Include="calculate.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="gui.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="loadData.py" />
+    <Compile Include="mplwidget.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="simpleGUI.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="resources\" />
@@ -33,12 +42,14 @@
   <ItemGroup>
     <Content Include="requirements.txt" />
     <Content Include="resources\dane.txt" />
+    <Content Include="resources\test.ui" />
+    <Content Include="resources\testv2.ui" />
   </ItemGroup>
   <ItemGroup>
-    <Interpreter Include="env\">
-      <Id>env</Id>
-      <Version>3.6</Version>
-      <Description>env (Python 3.6 (64-bit))</Description>
+    <Interpreter Include="venv\">
+      <Id>venv</Id>
+      <Version>3.7</Version>
+      <Description>venv (Python 3.7 (64-bit))</Description>
       <InterpreterPath>Scripts\python.exe</InterpreterPath>
       <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
       <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
