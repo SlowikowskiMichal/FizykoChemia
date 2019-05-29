@@ -1,5 +1,6 @@
 from random import randint
 from random import randrange
+from sympy import symbols, Eq, solve, sympify
 
 class Range:
 	def __init__(self, start, end, formula, thermalEffect):
@@ -37,23 +38,48 @@ def InsertNewRange(listOfRanges, newRange):
 
 def InsertThermalEffect(listOfPairs, rangeObject, placement):
 	if placement.lower() == 'start':
-		listOfPairs.append((rangeObject.start, rangeObject.thermalEffect))
+		listOfPairs.append([rangeObject.start, rangeObject.thermalEffect])
 	elif placement.lower() == 'end':
-		listOfPairs.append((rangeObject.end, rangeObject.thermalEffect))
+		listOfPairs.append([rangeObject.end, rangeObject.thermalEffect])
 	elif placement.lower() == 'middle':
-		listOfPairs.append((round((rangeObject.end - rangeObject.start)*0.5), rangeObject.thermalEffect))
+		listOfPairs.append([round((rangeObject.end - rangeObject.start) * 0.5), rangeObject.thermalEffect])
 	elif placement.lower() == 'both':
-		listOfPairs.append((rangeObject.start, rangeObject.thermalEffect * 0.5))
-		listOfPairs.append((rangeObject.end, rangeObject.thermalEffect * 0.5))
+		listOfPairs.append([rangeObject.start, rangeObject.thermalEffect * 0.5])
+		listOfPairs.append([rangeObject.end, rangeObject.thermalEffect * 0.5])
 	elif placement.lower() == 'triple':
-		listOfPairs.append((rangeObject.start, rangeObject.thermalEffect/3.0))
-		listOfPairs.append((round((rangeObject.end - rangeObject.start)*0.5), rangeObject.thermalEffect/3.0))
-		listOfPairs.append((rangeObject.end, rangeObject.thermalEffect/3.0))
-	elif placement.lower() == 'random':
-		iter = randrange(1, rangeObject.end - rangeObject.start + 1, 1)
-		tempThermalEffect = rangeObject.thermalEffect/iter
-		for x in range(0, iter, 1):
-			listOfPairs.append((rangeObject.start, rangeObject.end + 1, 1), tempThermalEffect)
+		listOfPairs.append([rangeObject.start, rangeObject.thermalEffect / 3.0])
+		listOfPairs.append([round((rangeObject.end + rangeObject.start) * 0.5), rangeObject.thermalEffect / 3.0])
+		listOfPairs.append([rangeObject.end, rangeObject.thermalEffect / 3.0])
+	elif placement.lower() == 'equation':
+		sum = 0
+		functionValuesList = []
+		for i in range(rangeObject.end - rangeObject.start):
+			eq = sympify(rangeObject.formula.replace("x", str(i)))
+			functionValuesList.append(eq)
+			sum += eq
+		scale = rangeObject.thermalEffect / sum
+		for i in range(rangeObject.end - rangeObject.start):
+			listOfPairs.append([rangeObject.start + i, functionValuesList[i] * scale])
+			
+		
+	#elif placement.lower() == 'random':
+	#	iter = randrange(1, rangeObject.end - rangeObject.start + 1, 1)
+	#	tempThermalEffect = rangeObject.thermalEffect/iter
+	#	for x in range(0, iter, 1):
+	#		randTemp = randrange(rangeObject.start, rangeObject.end + 1, 1)
+	#		isFound = False
+	#		if(x > 0):
+	#			search = randTemp
+	#			for sublist in listOfPairs:
+	#				if sublist[0] == search:
+	#					searchIndex = listOfPairs.index(sublist)
+	#					listOfPairs[searchIndex][0] += tempThermalEffect
+	#					isFound = True
+	#					break
+	#			if isFound == False:
+	#				listOfPairs.append([randTemp, tempThermalEffect])
+	#		else:
+	#			listOfPairs.append([randTemp, tempThermalEffect])
 	else:
 		raise Exception('specified placement cannot be identified')
 	return listOfPairs
@@ -75,20 +101,19 @@ def calculateFinalEntalphy(listOfTemp, listOfEntalphy, listOfPairs):
 	return listOfEntalphy
 
 if __name__ == "__main__":
-	r1 = Range(10, 20, "x*2", 20)
-	r2 = Range(30, 33, "x*2", 300)
-	r3 = Range(61, 67, "x*2", 155.4)
+	r1 = Range(10, 20, "x+1", 20)
+	r2 = Range(30, 33, "x+1", 300)
+	r3 = Range(61, 67, "x+1", 155.4)
 	
 	listOfRanges = [r1, r2, r3]
-	listOfRanges = InsertNewRange(listOfRanges, Range(100, 111, "x", 4.5))
+	listOfRanges = InsertNewRange(listOfRanges, Range(100, 111, "x+1", 4.5))
 	
 	listOfTemp = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 29, 30, 31, 32, 33, 60, 61, 62, 63, 64, 65, 66, 67, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112]
 	listOfEntl = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
 	listOfPair = []
 	for rangeItem in listOfRanges:
-		listOfPair = InsertThermalEffect(listOfPair, rangeItem, 'end')
+		listOfPair = InsertThermalEffect(listOfPair, rangeItem, 'equation')
 	
-	#print(listOfPair)
 	print('Temperature List')
 	print(listOfTemp)
 	print('Pair List')
