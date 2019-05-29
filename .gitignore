@@ -260,3 +260,5 @@ paket-files/
 __pycache__/
 *.pyc
 /FizykoChemia/env
+/FizykoChemia/venv/Lib/site-packages
+/FizykoChemia/venv
