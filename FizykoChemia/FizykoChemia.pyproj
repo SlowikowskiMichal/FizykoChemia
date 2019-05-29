@@ -33,6 +33,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Range.py" />
+    <Compile Include="rangeTest.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="simpleGUI.py">
       <SubType>Code</SubType>
     </Compile>

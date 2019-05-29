@@ -7,7 +7,7 @@ import random
 import loadData as loader
 import calculate as calc
 
-import Range
+import Range as bj
      
 class MatplotlibWidget(QMainWindow):
 
@@ -100,7 +100,7 @@ class MatplotlibWidget(QMainWindow):
             self.rangeComboBox.setCurrentIndex(self.rangeComboBox.currentIndex()-1)
 
     def newButtonClicked(self):
-        Range(0,1,"",0)
+        self.rangeList.append(bj.Range(0,1,"",0))
         
         self.rangeComboBox.addItem("{} - Przemiana".format(self.rangeComboBox.count()+1))
         self.rangeComboBox.setCurrentIndex(self.rangeComboBox.count() - 1)
@@ -122,19 +122,19 @@ class MatplotlibWidget(QMainWindow):
 
     def onRangeComboboxChanged(self, value):
         print("combobox changed", value)    
-        printRangeData()
+        self.printRangeData()
 
     def printRangeData(self):
-        if self.onRangeComboboxChanged.count() <= 0:
+        if self.rangeComboBox.count() <= 0:
             self.maxLineEdit.setText("")
             self.minLineEdit.setText("")
             self.valueLineEdit.setText("")
-            self.functionLineEdit.setIndex(-1)
+            #self.functionLineEdit.setIndex(-1)
             self.functionLineEdit.setEnabled(False)
         else:
-            self.maxLineEdit.setText(self.rangeList[self.rangeComboBox.currentIndex].end)
-            self.minLineEdit.setText(self.rangeList[self.rangeComboBox.currentIndex].start)
-            self.valueLineEdit.setText(self.rangeList[self.rangeComboBox.currentIndex].thermalEffect)
+            self.maxLineEdit.setText("{}".format(self.rangeList[self.rangeComboBox.currentIndex()].end))
+            self.minLineEdit.setText("{}".format(self.rangeList[self.rangeComboBox.currentIndex()].start))
+            self.valueLineEdit.setText("{}".format(self.rangeList[self.rangeComboBox.currentIndex()].thermalEffect))
             
 
     def rangeParametersEnabled(self, flag=False):
