@@ -6,6 +6,8 @@ import random
 
 import loadData as loader
 import calculate as calc
+
+import Range
      
 class MatplotlibWidget(QMainWindow):
 
@@ -15,6 +17,8 @@ class MatplotlibWidget(QMainWindow):
 
     dataList = loader.load(path)
     resultList = []
+
+    rangeList = []
     #-------------------------------------------------------------------------------------
     #Methods
     #-------------------------------------------------------------------------------------
@@ -24,7 +28,7 @@ class MatplotlibWidget(QMainWindow):
 
         loadUi("resources/testv2.ui",self)
 
-        self.setWindowTitle("PyQt5 & Matplotlib Example GUI")
+        self.setWindowTitle("Czekoladowy Wojownik")
 
         self.nextButton.clicked.connect(self.nextButtonClicked)
         self.previousButton.clicked.connect(self.previousButtonClicked)
@@ -32,14 +36,11 @@ class MatplotlibWidget(QMainWindow):
         self.lastButton.clicked.connect(self.lastButtonClicked)
 
         self.newButton.clicked.connect(self.newButtonClicked)
-        self.removeButton.clicked.connect(self.lastButtonClicked)
+        self.removeButton.clicked.connect(self.removeButtonClicked)
 
-        self.rangeComboBox.addItem("1")
-        self.rangeComboBox.addItem("2")
-        self.rangeComboBox.addItem("3")
-        self.rangeComboBox.addItem("4")
+        self.rangeComboBox.currentIndexChanged.connect(self.onRangeComboboxChanged)
 
-
+        self.saveButton.clicked.connect(self.saveButtonClicked)
 
         self.actionLoad.triggered.connect(self.loadFile)
         self.addToolBar(NavigationToolbar(self.MplWidget.canvas, self))
@@ -94,16 +95,55 @@ class MatplotlibWidget(QMainWindow):
         if self.rangeComboBox.currentIndex()+1 < self.rangeComboBox.count():
             self.rangeComboBox.setCurrentIndex(self.rangeComboBox.currentIndex()+1)
 
-    
     def previousButtonClicked(self):
         if self.rangeComboBox.currentIndex() > 0:
             self.rangeComboBox.setCurrentIndex(self.rangeComboBox.currentIndex()-1)
 
     def newButtonClicked(self):
+        Range(0,1,"",0)
+        
+        self.rangeComboBox.addItem("{} - Przemiana".format(self.rangeComboBox.count()+1))
+        self.rangeComboBox.setCurrentIndex(self.rangeComboBox.count() - 1)
+
+        print(self.rangeList[0].start)
+
+        if(self.rangeComboBox.count() > 0):
+            self.rangeParametersEnabled(True)
+
+    def removeButtonClicked(self):
+        if self.rangeComboBox.count() > 0:
+            self.rangeComboBox.removeItem(self.rangeComboBox.currentIndex())
+        
+        if self.rangeComboBox.count() <= 0:
+            self.rangeParametersEnabled(False)
+
+    def saveButtonClicked(self):
         pass
 
-    def removeButton(self):
-        pass
+    def onRangeComboboxChanged(self, value):
+        print("combobox changed", value)    
+        printRangeData()
+
+    def printRangeData(self):
+        if self.onRangeComboboxChanged.count() <= 0:
+            self.maxLineEdit.setText("")
+            self.minLineEdit.setText("")
+            self.valueLineEdit.setText("")
+            self.functionLineEdit.setIndex(-1)
+            self.functionLineEdit.setEnabled(False)
+        else:
+            self.maxLineEdit.setText(self.rangeList[self.rangeComboBox.currentIndex].end)
+            self.minLineEdit.setText(self.rangeList[self.rangeComboBox.currentIndex].start)
+            self.valueLineEdit.setText(self.rangeList[self.rangeComboBox.currentIndex].thermalEffect)
+            
+
+    def rangeParametersEnabled(self, flag=False):
+        self.minLineEdit.setEnabled(flag)
+        self.maxLineEdit.setEnabled(flag)
+        self.valueLineEdit.setEnabled(flag)
+        #self.functionLineEdit.setEnabled(flag)
+        self.saveButton.setEnabled(flag)
+
 app = QApplication([])
 
 
