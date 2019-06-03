@@ -1,9 +1,10 @@
 from random import randint
 from random import randrange
 from sympy import symbols, Eq, solve, sympify
+import operator
 
 class Range:
-	def __init__(self, start, end, formula, thermalEffect):
+	def __init__(self, start, end, formula, thermalEffect, name = "", methodId = 0):
 		if end < start:
 			self.start = end
 			self.end = start
@@ -14,27 +15,41 @@ class Range:
 			self.end = end
 		self.thermalEffect = thermalEffect
 		self.formula = formula
-	
+		self.name = name
+		self.methodId = methodId
+
+
 def InsertNewRange(listOfRanges, newRange):
 	isInserted = False
+	index = 0
 	if len(listOfRanges) == 0:
 		listOfRanges.append(newRange)
 		isInserted = True;
+		index = 0;
 	elif newRange.end <= listOfRanges[0].start:
 		listOfRanges = [newRange] + listOfRanges
-		isInserted = True;
-	elif newRange.start >= listOfRanges[len(listOfRanges) - 1].end:
+		index = 0;
+	elif newRange.start >= listOfRanges[-1].end:
 		listOfRanges += [newRange]
 		isInserted = True;
+		index = len(listOfRanges) - 1;
 	else:
 		for i in range(0, len(listOfRanges) - 1):
 			if newRange.start >= listOfRanges[i].end and newRange.end <= listOfRanges[i + 1].start:
 				listOfRanges[i+1:i+1] = [newRange]
 				isInserted = True;
+				index = i;
 				break
 	if isInserted == False:
 		raise Exception('given range overlaps with previously defined ranges')
-	return listOfRanges
+	return listOfRanges, index
+
+def RemoveRange(listOfRanges, rangeID):
+    if(len(listOfRanges) > 1 and rangeID < len(listOfRanges)):
+        del listOfRanges[rangeID]
+
+def SortRanges(listOfRanges):
+    sortedListOfRanges = sorted(listOfRanges, KeyboardInterrupt=operator.attrgetter('start'))
 
 def InsertThermalEffect(listOfPairs, rangeObject, placement):
 	if placement.lower() == 'start':
