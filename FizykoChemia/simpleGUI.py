@@ -16,7 +16,8 @@ class MatplotlibWidget(QMainWindow):
     path = dataFolderPath + filename
 
     newRange = False;
-
+    min = 0
+    max = 0
     dataList = []
     resultList = []
     rangeList = []
@@ -33,7 +34,8 @@ class MatplotlibWidget(QMainWindow):
 
         #BACK------------------------------------
         self.loadFile()    
-        self.rangeList, i = Range.InsertNewRange(self.rangeList,Range.Range(self.dataList[0][0],self.dataList[0][1], "x", 20))
+        self.rangeList, i = Range.InsertNewRange(self.rangeList,Range.Range(self.min,self.max,self.dataList[0][0],\
+            self.dataList[0][1], "x", 20, "{} - Przemiana".format(self.rangeComboBox.count()+1)))
         print(len(self.rangeList))
 
         #FRONT-----------------------------------
@@ -49,42 +51,30 @@ class MatplotlibWidget(QMainWindow):
 
         self.rangeComboBox.currentIndexChanged.connect(self.onRangeComboboxChanged)
 
+        self.methodComboBox.currentIndexChanged.connect(self.onMethodComboboxChanged)
+
         self.saveButton.clicked.connect(self.saveButtonClicked)
         self.drawButton.clicked.connect(self.drawButtonClicked)
 
         self.actionLoad.triggered.connect(self.loadFileDialogBox)
+        self.actionSaveResult.triggered.connect(self.saveFileDialogBox)
+        self.actionSaveResultAndData.triggered.connect(self.saveBigFileDialogBox)
         self.addToolBar(NavigationToolbar(self.MplWidget.canvas, self))
 
         self.addRangeToComboBox(0)
 
-    def addRangeToComboBox(self,id):
-        #self.rangeList.append(Range.Range(0,1,"",0))
-        self.rangeComboBox.addItem("{} - Przemiana".format(self.rangeComboBox.count()+1))
+    def addRangeToComboBox(self,id,itemName = ""):
+        if not itemName:
+            itemName = "{} - Przemiana".format(self.rangeComboBox.count()+1)
+        self.rangeComboBox.addItem(itemName)
         self.rangeComboBox.setCurrentIndex(id)
         self.printRangeData()
-
-
-    def update_graph(self):
-
-        fs = 500
-        f = random.randint(1, 100)
-        ts = 1/fs
-        length_of_signal = 100
-        t = np.linspace(0,1,length_of_signal)
-        
-        cosinus_signal = np.cos(2*np.pi*f*t)
-        sinus_signal = np.sin(2*np.pi*f*t)
-
-        self.MplWidget.canvas.axes.clear()
-        self.MplWidget.canvas.axes.plot(t, cosinus_signal)
-        self.MplWidget.canvas.axes.plot(t, sinus_signal)
-        self.MplWidget.canvas.axes.legend(('cosinus', 'sinus'),loc='upper right')
-        self.MplWidget.canvas.axes.set_title('Cosinus - Sinus Signal')
-        self.MplWidget.canvas.draw()
 
     def print_graph(self):
         self.calculateE()
         self.MplWidget.canvas.axes.clear()
+        self.MplWidget.canvas.axes.set_xlabel('Temperatura')
+        self.MplWidget.canvas.axes.set_ylabel('Entalpia')
         self.MplWidget.canvas.axes.plot(self.dataList[0], self.resultList)
         self.MplWidget.canvas.draw()
 
@@ -101,7 +91,41 @@ class MatplotlibWidget(QMainWindow):
         self.dataList = loader.load(self.path)
         print(self.dataList[0])
         self.calculateE()
+        self.min = self.dataList[0][0]
+        self.max = self.dataList[0][-1]
         self.print_graph()
+
+    def saveBigFileDialogBox(self):
+        self.saveFileDialogBox(True)
+
+    def saveFileDialogBox(self,additionalInfo = False):
+        output = QFileDialog.getSaveFileName( \
+            self, "Save File", filter="CSV files (*.csv)");
+
+        if output[0] is not "":
+
+            path = output[0]
+            self.saveFile(path,additionalInfo)
+    def saveFile(self,path,additionalInfo = False):
+        if additionalInfo:
+            text = "Temperatura,Data,Entalpia,\n"
+            for i,r in enumerate(self.resultList):
+                text+="{},{},{}\n".format(self.dataList[0][i],self.dataList[1][i],r)
+        else:
+            text = "Temperatura,Entalpia,\n"
+            for i,r in enumerate(self.resultList):
+                text+="{},{}\n".format(self.dataList[0][i],r)
+
+        try:
+            file = open(path,'w+')
+            file.write(text)
+            file.close()
+        except IOError:
+            self.showWarning("Błąd zapisu pliku",\
+                "Nie można zapisać do wskazanego pliku",\
+                "Uwaga",\
+                "Brak dostępu do podanego pliku")
+
 
     def calculateE(self):
         self.dataList = calc.interpolate(self.dataList)
@@ -122,8 +146,6 @@ class MatplotlibWidget(QMainWindow):
             self.rangeComboBox.setCurrentIndex(self.rangeComboBox.currentIndex()-1)
 
     def newButtonClicked(self):
-        #self.rangeComboBox.addItem("{} - Przemiana".format(self.rangeComboBox.count()+1))
-        #self.rangeComboBox.setCurrentIndex(self.rangeComboBox.count() - 1)
         self.newRange = True
         self.printRangeData(True)
 
@@ -134,28 +156,104 @@ class MatplotlibWidget(QMainWindow):
     def removeButtonClicked(self):
         if self.rangeComboBox.count() > 1:
             self.rangeComboBox.removeItem(self.rangeComboBox.currentIndex())
+            self.rangeList = Range.RemoveRange(self.rangeList,self.rangeComboBox.currentIndex())
+            self.printRangeData()
         
         if self.rangeComboBox.count() <= 0:
-            self.rangeParametersEnabled(False)
+            self.rangeParametersEnabled(True)
 
     def saveButtonClicked(self):
         if(self.newRange):
-            newRange = Range.Range(float(self.minLineEdit.value()),float(self.maxLineEdit.value()),\
-                self.functionLineEdit.setText, self.valueLineEdit.value(),self.nameLineEdit.text())
+            try:
+                newRange = Range.Range(self.min,self.max,float(self.minLineEdit.value()),float(self.maxLineEdit.value()),\
+                    self.functionLineEdit.setText, self.valueLineEdit.value(),self.nameLineEdit.text())
+            except ValueError as e:
+                self.showWarning("Niepoprawne wartości!",\
+                    "Przedział zawiera niepoprawne wartości!",\
+                    "Uwaga",\
+                    "Początek i koniec przedziału są równe.")
+                self.printRangeData()
+                return
+            except AssertionError:
+                self.showWarning("Niepoprawne wartości!",\
+                    "Przedział zawiera niepoprawne wartości!",\
+                    "Uwaga",\
+                    "Wartości nowego przedziału wykraczają poza wartości wczytanych temperatur.")
+                self.printRangeData()
+                return
 
-            self.rangeList, index = Range.InsertNewRange(self.rangeList,newRange)
-            self.addRangeToComboBox(index)
+            try:
+                self.rangeList, index = Range.InsertNewRange(self.rangeList,newRange)
+            except AssertionError:
+                self.showWarning("Niepoprawne wartości!",\
+                    "Przedział zawiera niepoprawne wartości!",\
+                    "Uwaga",\
+                    "Porzedziały nakładają się na siebie.")
+                self.printRangeData()
+                return
+
+            self.addRangeToComboBox(index, self.nameLineEdit.text())
             self.newRange = False;
         else:
-            self.rangeList[self.rangeComboBox.currentIndex()].name = self.nameLineEdit.text()
-            self.rangeList[self.rangeComboBox.currentIndex()].start = self.minLineEdit.value()
-            self.rangeList[self.rangeComboBox.currentIndex()].end = self.maxLineEdit.value()
-            self.rangeList[self.rangeComboBox.currentIndex()].thermalEffect = self.valueLineEdit.value()
+            try:
+                newRange = Range.Range(self.min,self.max,float(self.minLineEdit.value()),float(self.maxLineEdit.value()),\
+                    self.functionLineEdit.setText, self.valueLineEdit.value(),self.nameLineEdit.text())
+            except ValueError as e:
+                self.showWarning("Niepoprawne wartości!",\
+                    "Przedział zawiera niepoprawne wartości!",\
+                    "Uwaga",\
+                    "Początek i koniec przedziału są równe.")
+                self.printRangeData()
+                return
+            except AssertionError:
+                self.showWarning("Niepoprawne wartości!",\
+                    "Przedział zawiera niepoprawne wartości!",\
+                    "Uwaga",\
+                    "Wartości nowego przedziału wykraczają poza wartości wczytanych temperatur.")
+                self.printRangeData()
+                return
+
+            buffList = self.rangeList.copy()
+            del buffList[self.rangeComboBox.currentIndex()]
+            try:
+                buffList, index = Range.InsertNewRange(buffList,newRange)
+            except AssertionError:
+                self.showWarning("Niepoprawne wartości!",\
+                    "Przedział zawiera niepoprawne wartości!",\
+                    "Uwaga",\
+                    "Porzedziały nakładają się na siebie.")
+                self.printRangeData()
+                return
+
+            self.rangeList = buffList.copy()
+
+            self.loadRangeComboBoxFromList()
+
         pass
 
-    def drawButtonClicked(self):
+    def loadRangeComboBoxFromList(self):
+        self.rangeComboBox.clear()
+        i = 0
+        for r in self.rangeList:
+            self.addRangeToComboBox(i,r.name)
+            i+=1
 
+
+    def showWarning(self,header,info,title,detail):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setText(header)
+        msg.setInformativeText(info)
+        msg.setWindowTitle(title)
+        msg.setDetailedText(detail)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
+
+    def drawButtonClicked(self):
+        self.calculateE()
         self.MplWidget.canvas.axes.clear()
+        self.MplWidget.canvas.xlabel("Temperatura")
+        self.MplWidget.canvas.ylabel("Entalpia")
         self.MplWidget.canvas.axes.plot(self.dataList[0], self.resultList)
         self.MplWidget.canvas.draw()
 
@@ -165,6 +263,7 @@ class MatplotlibWidget(QMainWindow):
         self.printRangeData()
 
     def rangeParametersEnabled(self, flag=True):
+        self.nameLineEdit.setEnabled(flag)
         self.minLineEdit.setEnabled(flag)
         self.maxLineEdit.setEnabled(flag)
         self.valueLineEdit.setEnabled(flag)
@@ -180,11 +279,17 @@ class MatplotlibWidget(QMainWindow):
             #self.functionLineEdit.setIndex(-1)
             self.functionLineEdit.setEnabled(False)
         else:
-            self.nameLineEdit.setText("{}".format(self.rangeList[self.rangeComboBox.currentIndex()].name))
+            self.nameLineEdit.setText(self.rangeList[self.rangeComboBox.currentIndex()].name)
             self.maxLineEdit.setValue(self.rangeList[self.rangeComboBox.currentIndex()].end)
             self.minLineEdit.setValue(self.rangeList[self.rangeComboBox.currentIndex()].start)
             self.valueLineEdit.setValue(self.rangeList[self.rangeComboBox.currentIndex()].thermalEffect)
             
+
+    def onMethodComboboxChanged(self):
+        print(self.methodComboBox.currentText().lower())
+        self.functionLineEdit.setEnabled(self.methodComboBox.currentText().lower() == "equation")
+        
+
 
 app = QApplication([])
 

@@ -264,3 +264,5 @@ __pycache__/
 /FizykoChemia/venv/Lib/site-packages
 /FizykoChemia/venv
 /FizykoChemia/env1
+*.csv
+/FizykoChemia/resources/.~lock.ewe2.csv#
