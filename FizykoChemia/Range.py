@@ -24,8 +24,6 @@ class Range:
 		self.formula = formula
 		self.name = name
 		self.methodId = methodId
-		print(self.start)
-		print(self.end)
 
 
 def InsertNewRange(listOfRanges, newRange):

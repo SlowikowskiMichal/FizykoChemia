@@ -178,7 +178,7 @@ class MatplotlibWidget(QMainWindow):
         if(self.newRange):
             try:
                 newRange = Range.Range(self.min,self.max,float(self.minLineEdit.value()),float(self.maxLineEdit.value()),\
-                    self.functionLineEdit.setText, self.valueLineEdit.value(),self.nameLineEdit.text())
+                    self.functionLineEdit.text(), self.valueLineEdit.value(),self.nameLineEdit.text(),self.methodComboBox.currentIndex())
             except ValueError as e:
                 self.showWarning("Niepoprawne wartości!",\
                     "Przedział zawiera niepoprawne wartości!",\
@@ -209,7 +209,7 @@ class MatplotlibWidget(QMainWindow):
         else:
             try:
                 newRange = Range.Range(self.min,self.max,float(self.minLineEdit.value()),float(self.maxLineEdit.value()),\
-                    self.functionLineEdit.setText, self.valueLineEdit.value(),self.nameLineEdit.text())
+                    self.functionLineEdit.text(), self.valueLineEdit.value(),self.nameLineEdit.text(), self.methodComboBox.currentIndex())
             except ValueError as e:
                 self.showWarning("Niepoprawne wartości!",\
                     "Przedział zawiera niepoprawne wartości!",\
@@ -284,13 +284,16 @@ class MatplotlibWidget(QMainWindow):
             self.maxLineEdit.setValue(0)
             self.minLineEdit.setValue(0)
             self.valueLineEdit.setValue(0)
-            #self.functionLineEdit.setIndex(-1)
-            self.functionLineEdit.setEnabled(False)
+            self.methodComboBox.setCurrentIndex(0)
+            self.functionLineEdit.setText("")
         else:
             self.nameLineEdit.setText(self.rangeList[self.rangeComboBox.currentIndex()].name)
             self.maxLineEdit.setValue(self.rangeList[self.rangeComboBox.currentIndex()].end)
             self.minLineEdit.setValue(self.rangeList[self.rangeComboBox.currentIndex()].start)
             self.valueLineEdit.setValue(self.rangeList[self.rangeComboBox.currentIndex()].thermalEffect)
+            self.methodComboBox.setCurrentIndex(self.rangeList[self.rangeComboBox.currentIndex()].methodId)
+            self.functionLineEdit.setText(self.rangeList[self.rangeComboBox.currentIndex()].formula)
+
             
 
     def onMethodComboboxChanged(self):
