@@ -31,7 +31,7 @@ class MatplotlibWidget(QMainWindow):
         QMainWindow.__init__(self)
         loadUi("resources/testv2.ui",self)
 
-        self.setWindowTitle("Czekoladowy Wojownik")
+        self.setWindowTitle("Kalkulator Entalpii")
 
 
         #BACK------------------------------------
@@ -81,8 +81,8 @@ class MatplotlibWidget(QMainWindow):
     def print_graph(self):
         self.calculateE()
         self.MplWidget.canvas.axes.clear()
-        self.MplWidget.canvas.axes.set_xlabel('Temperatura')
-        self.MplWidget.canvas.axes.set_ylabel('Entalpia')
+        self.MplWidget.canvas.axes.set_xlabel('Temperatura [Celsjusz]')
+        self.MplWidget.canvas.axes.set_ylabel('Entalpia [J]')
         #self.MplWidget.canvas.axes.plot(self.dataList[0], self.resultList)
         self.MplWidget.canvas.axes.plot(self.dataList[0], self.resultList, label="Wynik")
         if self.drawSavedPlotCheckBox.isChecked():
