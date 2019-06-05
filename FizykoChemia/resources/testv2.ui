@@ -279,6 +279,20 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QPushButton" name="savePlotButton">
+            <property name="text">
+             <string>Zapisz do pamięci</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="drawSavedPlotCheckBox">
+            <property name="text">
+             <string>Rysuj zapisany</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item row="0" column="0">
@@ -506,6 +520,13 @@
          <widget class="QSpinBox" name="maxLineEdit">
           <property name="maximum">
            <number>1000000</number>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0">
+         <widget class="QLabel" name="plotLabel">
+          <property name="text">
+           <string>Wykres</string>
           </property>
          </widget>
         </item>

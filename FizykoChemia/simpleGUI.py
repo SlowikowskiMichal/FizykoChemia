@@ -18,6 +18,7 @@ class MatplotlibWidget(QMainWindow):
     newRange = False;
     min = 0
     max = 0
+    savedPlot = []
     dataList = []
     resultList = []
     rangeList = []
@@ -56,12 +57,18 @@ class MatplotlibWidget(QMainWindow):
         self.saveButton.clicked.connect(self.saveButtonClicked)
         self.drawButton.clicked.connect(self.drawButtonClicked)
 
+        self.savePlotButton.clicked.connect(self.savePlot)
+
         self.actionLoad.triggered.connect(self.loadFileDialogBox)
         self.actionSaveResult.triggered.connect(self.saveFileDialogBox)
         self.actionSaveResultAndData.triggered.connect(self.saveBigFileDialogBox)
         self.addToolBar(NavigationToolbar(self.MplWidget.canvas, self))
 
         self.addRangeToComboBox(0)
+
+    def savePlot(self):
+        print("Plot saved")
+        self.savedPlot = [self.dataList[0],self.resultList]
 
     def addRangeToComboBox(self,id,itemName = ""):
         if not itemName:
@@ -75,7 +82,11 @@ class MatplotlibWidget(QMainWindow):
         self.MplWidget.canvas.axes.clear()
         self.MplWidget.canvas.axes.set_xlabel('Temperatura')
         self.MplWidget.canvas.axes.set_ylabel('Entalpia')
-        self.MplWidget.canvas.axes.plot(self.dataList[0], self.resultList)
+        #self.MplWidget.canvas.axes.plot(self.dataList[0], self.resultList)
+        self.MplWidget.canvas.axes.plot(self.dataList[0], self.resultList, label="Wynik")
+        if self.drawSavedPlotCheckBox.isChecked():
+            self.MplWidget.canvas.axes.plot(self.savedPlot[0], self.savedPlot[1], alpha=0.9, linestyle=':', label="Zapisany wynik")
+            self.MplWidget.canvas.axes.legend(loc='best')
         self.MplWidget.canvas.draw()
 
     def loadFileDialogBox(self):
@@ -93,6 +104,7 @@ class MatplotlibWidget(QMainWindow):
         self.calculateE()
         self.min = self.dataList[0][0]
         self.max = self.dataList[0][-1]
+        self.savePlot()
         self.print_graph()
 
     def saveBigFileDialogBox(self):
@@ -250,12 +262,8 @@ class MatplotlibWidget(QMainWindow):
         msg.exec_()
 
     def drawButtonClicked(self):
-        self.calculateE()
-        self.MplWidget.canvas.axes.clear()
-        self.MplWidget.canvas.xlabel("Temperatura")
-        self.MplWidget.canvas.ylabel("Entalpia")
-        self.MplWidget.canvas.axes.plot(self.dataList[0], self.resultList)
-        self.MplWidget.canvas.draw()
+        self.print_graph()
+
 
     def onRangeComboboxChanged(self, value):
         self.newRange = False;
