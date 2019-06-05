@@ -60,6 +60,24 @@ def RemoveRange(listOfRanges, rangeID):
 def SortRanges(listOfRanges):
     sortedListOfRanges = sorted(listOfRanges, KeyboardInterrupt=operator.attrgetter('start'))
 
+def isPrime(num):
+	if num == 1 or num == 2:
+		return True
+	elif num < 1:
+		return False
+	elif num > 1 and num < 20:
+		for i in range(num) + 1:
+			if num % i == 0 and i != 1 and i != num:
+				return False
+		return True
+	elif num >= 20:
+		for i in range(20) + 1:
+			if num % i == 0 and i != 1 and i != num:
+				return False
+		return True
+	else:
+		return False
+
 def InsertThermalEffect(listOfPairs, rangeObject):
 	placement = rangeObject.methodId
 	if placement == 0:
@@ -90,7 +108,14 @@ def InsertThermalEffect(listOfPairs, rangeObject):
 		print("SUM: {},SCALE: {}".format(sum,scale))
 		for i in range(int(rangeObject.end) - int(rangeObject.start)):
 			listOfPairs.append([rangeObject.start + i, functionValuesList[i] * scale])
-			
+	elif placement == 6:
+		primesList = []
+		for i in range(int(rangeObject.end) - int(rangeObject.start)):
+			if isPrime(i + 1):
+				primesList.append(i)
+		heat = rangeObject.thermalEffect/len(primesList)
+		for p in primesList:
+			listOfPairs.append([rangeObject.start + p, heat])
 		
 	#elif placement.lower() == 'random':
 	#	iter = randrange(1, rangeObject.end - rangeObject.start + 1, 1)
