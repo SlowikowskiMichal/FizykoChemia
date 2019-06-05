@@ -60,29 +60,35 @@ def RemoveRange(listOfRanges, rangeID):
 def SortRanges(listOfRanges):
     sortedListOfRanges = sorted(listOfRanges, KeyboardInterrupt=operator.attrgetter('start'))
 
-def InsertThermalEffect(listOfPairs, rangeObject, placement):
-	if placement.lower() == 'start':
+def InsertThermalEffect(listOfPairs, rangeObject):
+	placement = rangeObject.methodId
+	if placement == 0:
 		listOfPairs.append([rangeObject.start, rangeObject.thermalEffect])
-	elif placement.lower() == 'end':
+	elif placement == 1:
 		listOfPairs.append([rangeObject.end, rangeObject.thermalEffect])
-	elif placement.lower() == 'middle':
+	elif placement == 2:
 		listOfPairs.append([round((rangeObject.end - rangeObject.start) * 0.5), rangeObject.thermalEffect])
-	elif placement.lower() == 'both':
+	elif placement == 3:
 		listOfPairs.append([rangeObject.start, rangeObject.thermalEffect * 0.5])
 		listOfPairs.append([rangeObject.end, rangeObject.thermalEffect * 0.5])
-	elif placement.lower() == 'triple':
+	elif placement == 4:
 		listOfPairs.append([rangeObject.start, rangeObject.thermalEffect / 3.0])
 		listOfPairs.append([round((rangeObject.end + rangeObject.start) * 0.5), rangeObject.thermalEffect / 3.0])
 		listOfPairs.append([rangeObject.end, rangeObject.thermalEffect / 3.0])
-	elif placement.lower() == 'equation':
+	elif placement == 5:
 		sum = 0
 		functionValuesList = []
-		for i in range(rangeObject.end - rangeObject.start):
-			eq = sympify(rangeObject.formula.replace("x", str(i))) #check if can be done with strict=True
+		for i in range(int(rangeObject.end) - int(rangeObject.start)):
+			#i = x - int(rangeObject.end)
+			eq = sympify(rangeObject.formula.replace("x", str(i)))
 			functionValuesList.append(eq)
 			sum += eq
+			print("X: {} = : {}".format(i,eq))        
 		scale = rangeObject.thermalEffect / sum
-		for i in range(rangeObject.end - rangeObject.start):
+		if abs(scale) < 0.00001:
+		    raise Exception('Wrong equation')
+		print("SUM: {},SCALE: {}".format(sum,scale))
+		for i in range(int(rangeObject.end) - int(rangeObject.start)):
 			listOfPairs.append([rangeObject.start + i, functionValuesList[i] * scale])
 			
 		
@@ -110,18 +116,20 @@ def InsertThermalEffect(listOfPairs, rangeObject, placement):
 
 def calculateFinalEntalphy(listOfTemp, listOfEntalphy, listOfPairs):
 	toupleIndex = 0
-	entalphyIndex = listOfTemp.index(listOfPairs[toupleIndex][0])
-	thermalEffectSum = 0
-	for i in range(entalphyIndex, len(listOfTemp)):
-		if(toupleIndex < len(listOfPairs)):
-			if listOfTemp[i] == listOfPairs[toupleIndex][0]:
-				thermalEffectSum += listOfPairs[toupleIndex][1]
-				listOfEntalphy[i] += thermalEffectSum
-				toupleIndex += 1
-			else:
-				listOfEntalphy[i] += thermalEffectSum
-		else:
-			listOfEntalphy[i] += thermalEffectSum
+	if listOfPairs:
+	    print("JESTEM")
+	    entalphyIndex = listOfTemp.index(listOfPairs[toupleIndex][0])
+	    thermalEffectSum = 0
+	    for i in range(entalphyIndex, len(listOfTemp)):
+	    	if(toupleIndex < len(listOfPairs)):
+	    		if listOfTemp[i] == listOfPairs[toupleIndex][0]:
+	    			thermalEffectSum += listOfPairs[toupleIndex][1]
+	    			listOfEntalphy[i] += thermalEffectSum
+	    			toupleIndex += 1
+	    		else:
+	    			listOfEntalphy[i] += thermalEffectSum
+	    	else:
+	    		listOfEntalphy[i] += thermalEffectSum
 	return listOfEntalphy
 
 if __name__ == "__main__":

@@ -22,6 +22,7 @@ class MatplotlibWidget(QMainWindow):
     dataList = []
     resultList = []
     rangeList = []
+    thermalEffectList = []
     #-------------------------------------------------------------------------------------
     #Methods
     #-------------------------------------------------------------------------------------
@@ -142,7 +143,21 @@ class MatplotlibWidget(QMainWindow):
     def calculateE(self):
         self.dataList = calc.interpolate(self.dataList)
         self.resultList = calc.calculateE(self.dataList[0],self.dataList[1])
-        
+        for r in self.rangeList:
+            try:
+                self.thermalEffectList = Range.InsertThermalEffect(self.thermalEffectList,r)
+            except:
+                self.showWarning("Błąd obliczeń",\
+                    "Nieprawidłowa funkcja",\
+                    "Uwaga",\
+                    "Funkcja podana w przemianie: {} jest nieprawidłowa".format(r.name))
+                return
+            print("Min: {}\nMax: {}".format(r.start,r.end))
+        print(self.thermalEffectList)
+        self.resultList = Range.calculateFinalEntalphy(self.dataList[0],self.resultList,self.thermalEffectList)
+        self.thermalEffectList = []
+
+
     def firstButtonClicked(self):
         self.rangeComboBox.setCurrentIndex(0)
 
@@ -163,12 +178,11 @@ class MatplotlibWidget(QMainWindow):
 
         if(self.rangeComboBox.count() > 0):
             self.rangeParametersEnabled(True)
-        pass
 
     def removeButtonClicked(self):
         if self.rangeComboBox.count() > 1:
+            self.rangeList.pop(self.rangeComboBox.currentIndex())
             self.rangeComboBox.removeItem(self.rangeComboBox.currentIndex())
-            self.rangeList = Range.RemoveRange(self.rangeList,self.rangeComboBox.currentIndex())
             self.printRangeData()
         
         if self.rangeComboBox.count() <= 0:
@@ -180,13 +194,15 @@ class MatplotlibWidget(QMainWindow):
                 newRange = Range.Range(self.min,self.max,float(self.minLineEdit.value()),float(self.maxLineEdit.value()),\
                     self.functionLineEdit.text(), self.valueLineEdit.value(),self.nameLineEdit.text(),self.methodComboBox.currentIndex())
             except ValueError as e:
+                print(e.message)
                 self.showWarning("Niepoprawne wartości!",\
                     "Przedział zawiera niepoprawne wartości!",\
                     "Uwaga",\
                     "Początek i koniec przedziału są równe.")
                 self.printRangeData()
                 return
-            except AssertionError:
+            except AssertionError as e:
+                print(e.message)
                 self.showWarning("Niepoprawne wartości!",\
                     "Przedział zawiera niepoprawne wartości!",\
                     "Uwaga",\
@@ -217,7 +233,8 @@ class MatplotlibWidget(QMainWindow):
                     "Początek i koniec przedziału są równe.")
                 self.printRangeData()
                 return
-            except AssertionError:
+            except AssertionError as e:
+                print(e.message)
                 self.showWarning("Niepoprawne wartości!",\
                     "Przedział zawiera niepoprawne wartości!",\
                     "Uwaga",\
@@ -226,10 +243,15 @@ class MatplotlibWidget(QMainWindow):
                 return
 
             buffList = self.rangeList.copy()
-            del buffList[self.rangeComboBox.currentIndex()]
+            for r in buffList:
+                print("{}\n{}".format(r.start,r.end))
+            buffList.pop(self.rangeComboBox.currentIndex())
+            for r in buffList:
+                print("{}\n{}".format(r.start,r.end))
             try:
                 buffList, index = Range.InsertNewRange(buffList,newRange)
-            except AssertionError:
+            except AssertionError as e:
+                print(e.message)
                 self.showWarning("Niepoprawne wartości!",\
                     "Przedział zawiera niepoprawne wartości!",\
                     "Uwaga",\
@@ -238,10 +260,10 @@ class MatplotlibWidget(QMainWindow):
                 return
 
             self.rangeList = buffList.copy()
-
             self.loadRangeComboBoxFromList()
-
-        pass
+        for r in self.rangeList:
+            print("{}\n{}".format(r.start,r.end))
+        
 
     def loadRangeComboBoxFromList(self):
         self.rangeComboBox.clear()
@@ -295,7 +317,7 @@ class MatplotlibWidget(QMainWindow):
             self.functionLineEdit.setText(self.rangeList[self.rangeComboBox.currentIndex()].formula)
 
             
-
+    
     def onMethodComboboxChanged(self):
         print(self.methodComboBox.currentText().lower())
         self.functionLineEdit.setEnabled(self.methodComboBox.currentText().lower() == "equation")
